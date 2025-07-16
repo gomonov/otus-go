@@ -51,7 +51,7 @@ func sortTop(frequency map[string]int) []string {
 
 	const defaultTop = 10
 
-	var sorted []keyValue
+	sorted := make([]keyValue, 0, len(frequency))
 	for key, value := range frequency {
 		sorted = append(sorted, keyValue{key, value})
 	}
