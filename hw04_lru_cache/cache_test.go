@@ -84,6 +84,13 @@ func TestCache(t *testing.T) {
 		val, ok = c.Get("ccc")
 		require.False(t, ok)
 		require.Nil(t, val)
+
+		// чистка кеша
+		c.Clear()
+
+		val, ok = c.Get("fff")
+		require.False(t, ok)
+		require.Nil(t, val)
 	})
 }
 
