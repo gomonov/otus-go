@@ -1,6 +1,7 @@
 package hw06pipelineexecution
 
 import (
+	"log"
 	"strconv"
 	"sync"
 	"testing"
@@ -96,11 +97,12 @@ func TestPipeline(t *testing.T) {
 func TestAllStageStop(t *testing.T) {
 	wg := sync.WaitGroup{}
 	// Stage generator
-	g := func(_ string, f func(v interface{}) interface{}) Stage {
+	g := func(name string, f func(v interface{}) interface{}) Stage {
 		return func(in In) Out {
 			out := make(Bi)
 			wg.Add(1)
 			go func() {
+				defer log.Println(name)
 				defer wg.Done()
 				defer close(out)
 				for v := range in {
