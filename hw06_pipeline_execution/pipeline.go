@@ -24,7 +24,8 @@ func wrapChannel(in In, done In) Out {
 		for {
 			select {
 			case <-done:
-				for range in {
+				for v := range in {
+					_ = v
 				}
 				return
 			case v, ok := <-in:
@@ -33,7 +34,8 @@ func wrapChannel(in In, done In) Out {
 				}
 				select {
 				case <-done:
-					for range in {
+					for v := range in {
+						_ = v
 					}
 					return
 				case out <- v:
