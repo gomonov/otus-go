@@ -9,24 +9,31 @@ type (
 type Stage func(in In) (out Out)
 
 func ExecutePipeline(in In, done In, stages ...Stage) Out {
+	if len(stages) == 0 {
+		return in
+	}
+
 	for _, stage := range stages {
-		in = stage(wrapChannel(in, done))
+		in = stage(wrapPreStageChannel(in, done))
 	}
 
 	return in
 }
 
-func wrapChannel(in In, done In) Out {
+func wrapPreStageChannel(in In, done In) Out {
 	out := make(Bi)
 
 	go func() {
-		defer close(out)
+		defer func() {
+			close(out)
+			// вычитываем все оставшиеся сообщения из канала стейджа
+			for v := range in {
+				_ = v
+			}
+		}()
 		for {
 			select {
 			case <-done:
-				for v := range in {
-					_ = v
-				}
 				return
 			case v, ok := <-in:
 				if !ok {
@@ -34,9 +41,6 @@ func wrapChannel(in In, done In) Out {
 				}
 				select {
 				case <-done:
-					for v := range in {
-						_ = v
-					}
 					return
 				case out <- v:
 				}
