@@ -1,3 +1,4 @@
+//go:build !bench
 // +build !bench
 
 package hw10programoptimization
@@ -35,5 +36,53 @@ func TestGetDomainStat(t *testing.T) {
 		result, err := GetDomainStat(bytes.NewBufferString(data), "unknown")
 		require.NoError(t, err)
 		require.Equal(t, DomainStat{}, result)
+	})
+}
+
+func TestCountDomains_Minimal(t *testing.T) {
+	t.Run("counts matching domains", func(t *testing.T) {
+		users := users{
+			{Email: "user1@sub.example.com"},
+			{Email: "user2@test.example.com"},
+			{Email: "user3@example.org"},
+		}
+
+		result, _ := countDomains(users, "com")
+
+		expected := DomainStat{
+			"sub.example.com":  1,
+			"test.example.com": 1,
+		}
+
+		for domain, count := range expected {
+			if result[domain] != count {
+				t.Errorf("expected %s: %d, got %d", domain, count, result[domain])
+			}
+		}
+	})
+
+	t.Run("case insensitive", func(t *testing.T) {
+		users := users{
+			{Email: "USER@EXAMPLE.COM"},
+		}
+
+		result, _ := countDomains(users, "com")
+
+		if result["example.com"] != 1 {
+			t.Error("should match case insensitive")
+		}
+	})
+
+	t.Run("skips invalid emails", func(t *testing.T) {
+		users := users{
+			{Email: "invalid-email"},
+			{Email: "valid@example.com"},
+		}
+
+		result, _ := countDomains(users, "com")
+
+		if result["example.com"] != 1 {
+			t.Error("should count valid emails only")
+		}
 	})
 }

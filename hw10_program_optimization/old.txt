@@ -1,0 +1,12 @@
+goos: linux
+goarch: amd64
+pkg: github.com/gomonov/otus-go/hw10_program_optimization
+cpu: AMD Ryzen 7 3800X 8-Core Processor             
+BenchmarkGetDomainStat-16    	       6	 182619360 ns/op	136045480 B/op	 1700089 allocs/op
+BenchmarkGetDomainStat-16    	       7	 209632326 ns/op	136045538 B/op	 1700090 allocs/op
+BenchmarkGetDomainStat-16    	       7	 184881334 ns/op	136045458 B/op	 1700089 allocs/op
+BenchmarkGetDomainStat-16    	       6	 187083918 ns/op	136045488 B/op	 1700089 allocs/op
+BenchmarkGetDomainStat-16    	       6	 196651542 ns/op	136045474 B/op	 1700089 allocs/op
+BenchmarkGetDomainStat-16    	       6	 187199696 ns/op	136045520 B/op	 1700089 allocs/op
+PASS
+ok  	github.com/gomonov/otus-go/hw10_program_optimization	17.182s
