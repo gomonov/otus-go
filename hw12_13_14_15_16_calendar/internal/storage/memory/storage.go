@@ -1,14 +1,27 @@
 package memorystorage
 
-import "sync"
+import (
+	"sync"
+
+	"github.com/gomonov/otus-go/hw12_13_14_15_calendar/internal/domain"
+	"github.com/gomonov/otus-go/hw12_13_14_15_calendar/internal/storage"
+)
 
 type Storage struct {
-	// TODO
-	mu sync.RWMutex //nolint:unused
+	events map[int]*domain.Event
+	mu     sync.RWMutex
+	nextID int
 }
 
-func New() *Storage {
-	return &Storage{}
+func NewStorage() *Storage {
+	return &Storage{
+		events: make(map[int]*domain.Event),
+		nextID: 1,
+	}
 }
 
-// TODO
+func (s *Storage) Event() storage.EventRepository {
+	return &EventRepository{
+		storage: s,
+	}
+}
