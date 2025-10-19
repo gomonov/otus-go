@@ -103,7 +103,7 @@ func TestStorage_ListByPeriods(t *testing.T) {
 
 	event3 := &domain.Event{
 		Title:     "Tomorrow",
-		EventTime: today.Add(26 * time.Hour),
+		EventTime: today.AddDate(0, 0, 1).Add(10 * time.Hour),
 		Duration:  1 * time.Hour,
 		UserID:    3,
 	}
