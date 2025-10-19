@@ -3,7 +3,6 @@ package migrations
 import (
 	"database/sql"
 	"fmt"
-	"log"
 
 	"github.com/gomonov/otus-go/hw12_13_14_15_calendar/internal/config"
 	_ "github.com/lib/pq" // Register postgres driver
@@ -36,11 +35,11 @@ func AutoMigrate(logger Logger, cfg *config.Config) error {
 		return fmt.Errorf("database ping failed: %w", err)
 	}
 
-	log.Println("Applying migrations...")
+	logger.Info("Applying migrations...")
 	if err := goose.Up(db, cfg.Migrations.Dir); err != nil {
 		return fmt.Errorf("failed to apply migrations: %w", err)
 	}
 
-	log.Println("Migrations applied successfully")
+	logger.Info("Migrations applied successfully")
 	return nil
 }
