@@ -39,7 +39,7 @@ func New(conf config.LoggerConf) (*Logger, error) {
 	logger.SetFormatter(&CleanFormatter{})
 
 	// Открываем файл
-	file, err := os.OpenFile(conf.FileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	file, err := os.OpenFile(conf.FileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o666)
 	if err != nil {
 		return nil, err
 	}

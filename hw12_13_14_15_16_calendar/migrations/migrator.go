@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"github.com/gomonov/otus-go/hw12_13_14_15_calendar/internal/config"
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // Register postgres driver
 	"github.com/pressly/goose/v3"
 )
 

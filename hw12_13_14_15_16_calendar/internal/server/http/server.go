@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gomonov/otus-go/hw12_13_14_15_calendar/internal/config"
+	"github.com/gomonov/otus-go/hw12_13_14_15_calendar/internal/domain"
 	"github.com/gomonov/otus-go/hw12_13_14_15_calendar/internal/logger"
 )
 
@@ -24,6 +25,13 @@ type Logger interface {
 }
 
 type Application interface {
+	CreateEvent(event *domain.Event) error
+	GetEvent(id int) (domain.Event, error)
+	UpdateEvent(id int, event *domain.Event) error
+	DeleteEvent(id int) error
+	ListByDay(date time.Time) ([]domain.Event, error)
+	ListByWeek(date time.Time) ([]domain.Event, error)
+	ListByMonth(date time.Time) ([]domain.Event, error)
 }
 
 func NewServer(logger *logger.Logger, app Application, config config.ServerConf) *Server {
