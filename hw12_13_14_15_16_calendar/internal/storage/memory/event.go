@@ -78,11 +78,12 @@ func (r *EventRepository) ListByWeek(date time.Time) ([]domain.Event, error) {
 	defer r.storage.mu.RUnlock()
 
 	var events []domain.Event
-	year, week := date.ISOWeek()
+	startOfWeek := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
+	endOfWeek := startOfWeek.Add(7 * 24 * time.Hour)
 
 	for _, event := range r.storage.events {
-		eventYear, eventWeek := event.EventTime.ISOWeek()
-		if eventYear == year && eventWeek == week {
+		if (event.EventTime.After(startOfWeek) || event.EventTime.Equal(startOfWeek)) &&
+			event.EventTime.Before(endOfWeek) {
 			events = append(events, *event)
 		}
 	}
@@ -94,11 +95,12 @@ func (r *EventRepository) ListByMonth(date time.Time) ([]domain.Event, error) {
 	defer r.storage.mu.RUnlock()
 
 	var events []domain.Event
-	year, month := date.Year(), date.Month()
+	startOfMonth := time.Date(date.Year(), date.Month(), 1, 0, 0, 0, 0, date.Location())
+	startOfNextMonth := startOfMonth.AddDate(0, 1, 0)
 
 	for _, event := range r.storage.events {
-		eventYear, eventMonth := event.EventTime.Year(), event.EventTime.Month()
-		if eventYear == year && eventMonth == month {
+		if (event.EventTime.After(startOfMonth) || event.EventTime.Equal(startOfMonth)) &&
+			event.EventTime.Before(startOfNextMonth) {
 			events = append(events, *event)
 		}
 	}

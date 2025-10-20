@@ -150,15 +150,17 @@ func (r *EventRepository) ListByDay(date time.Time) ([]domain.Event, error) {
 }
 
 func (r *EventRepository) ListByWeek(date time.Time) ([]domain.Event, error) {
+	startOfWeek := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
+	endOfWeek := startOfWeek.Add(7 * 24 * time.Hour)
+
 	query := `
         SELECT * FROM events 
-        WHERE EXTRACT(YEAR FROM event_time) = EXTRACT(YEAR FROM $1::date)
-          AND EXTRACT(WEEK FROM event_time) = EXTRACT(WEEK FROM $1::date)
+        WHERE event_time >= $1 AND event_time < $2
         ORDER BY event_time
     `
 
 	var eventsDB []eventDB
-	err := r.db.Select(&eventsDB, query, date)
+	err := r.db.Select(&eventsDB, query, startOfWeek, endOfWeek)
 	if err != nil {
 		return nil, err
 	}
@@ -172,15 +174,17 @@ func (r *EventRepository) ListByWeek(date time.Time) ([]domain.Event, error) {
 }
 
 func (r *EventRepository) ListByMonth(date time.Time) ([]domain.Event, error) {
+	startOfMonth := time.Date(date.Year(), date.Month(), 1, 0, 0, 0, 0, date.Location())
+	startOfNextMonth := startOfMonth.AddDate(0, 1, 0)
+
 	query := `
         SELECT * FROM events 
-        WHERE EXTRACT(YEAR FROM event_time) = EXTRACT(YEAR FROM $1::date)
-          AND EXTRACT(MONTH FROM event_time) = EXTRACT(MONTH FROM $1::date)
+        WHERE event_time >= $1 AND event_time < $2
         ORDER BY event_time
     `
 
 	var eventsDB []eventDB
-	err := r.db.Select(&eventsDB, query, date)
+	err := r.db.Select(&eventsDB, query, startOfMonth, startOfNextMonth)
 	if err != nil {
 		return nil, err
 	}
