@@ -25,3 +25,7 @@ func (s *Storage) Event() storage.EventRepository {
 		storage: s,
 	}
 }
+
+func (s *Storage) Close() error {
+	return nil
+}

@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"log"
-	"os"
 	"os/signal"
 	"syscall"
 	"time"
@@ -12,6 +11,7 @@ import (
 	"github.com/gomonov/otus-go/hw12_13_14_15_calendar/internal/app"
 	config2 "github.com/gomonov/otus-go/hw12_13_14_15_calendar/internal/config"
 	"github.com/gomonov/otus-go/hw12_13_14_15_calendar/internal/logger"
+	internalgrpc "github.com/gomonov/otus-go/hw12_13_14_15_calendar/internal/server/grpc"
 	internalhttp "github.com/gomonov/otus-go/hw12_13_14_15_calendar/internal/server/http"
 	storage2 "github.com/gomonov/otus-go/hw12_13_14_15_calendar/internal/storage"
 	memorystorage "github.com/gomonov/otus-go/hw12_13_14_15_calendar/internal/storage/memory"
@@ -53,7 +53,7 @@ func main() {
 
 	switch storageType {
 	case "postgres":
-		storage, err := sqlstorage.NewStorage(config.Storage.Dsn)
+		storage, err = sqlstorage.NewStorage(config.Storage.Dsn)
 		if err != nil {
 			log.Fatal("Failed to connect to PostgreSQL:", err)
 		}
@@ -67,8 +67,6 @@ func main() {
 
 	calendar := app.New(logg, storage)
 
-	server := internalhttp.NewServer(logg, calendar, config.Server)
-
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()
@@ -77,22 +75,42 @@ func main() {
 		logg.Info("calendar is stopping...")
 	})
 
+	httpServer := internalhttp.NewServer(logg, calendar, internalhttp.ServerConf{
+		Host: config.Server.Host,
+		Port: config.Server.Port,
+	})
 	go func() {
-		<-ctx.Done()
+		logg.Info("HTTP server starting...")
+		if err := httpServer.Start(ctx); err != nil {
+			logg.Error("failed to start HTTP server: " + err.Error())
+		}
+	}()
+	defer func() {
+		stopCtx, stopCancel := context.WithTimeout(context.Background(), 3*time.Second)
+		defer stopCancel()
+		if err := httpServer.Stop(stopCtx); err != nil {
+			logg.Error("failed to stop HTTP server: " + err.Error())
+		}
+	}()
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
-		defer cancel()
-
-		if err := server.Stop(ctx); err != nil {
-			logg.Error("failed to stop http server: " + err.Error())
+	grpcServer := internalgrpc.NewServer(logg, calendar, internalgrpc.GRPCConf{
+		Host: config.GRPC.Host,
+		Port: config.GRPC.Port,
+	})
+	go func() {
+		logg.Info("gRPC server starting...")
+		if err := grpcServer.Start(ctx); err != nil {
+			logg.Error("failed to start gRPC server: " + err.Error())
+		}
+	}()
+	defer func() {
+		stopCtx, stopCancel := context.WithTimeout(context.Background(), 3*time.Second)
+		defer stopCancel()
+		if err := grpcServer.Stop(stopCtx); err != nil {
+			logg.Error("failed to stop gRPC server: " + err.Error())
 		}
 	}()
 
 	logg.Info("calendar is running...")
-
-	if err := server.Start(ctx); err != nil {
-		logg.Error("failed to start http server: " + err.Error())
-		cancel()
-		os.Exit(1) //nolint:gocritic
-	}
+	<-ctx.Done()
 }

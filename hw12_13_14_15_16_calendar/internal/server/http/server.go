@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gomonov/otus-go/hw12_13_14_15_calendar/internal/config"
 	"github.com/gomonov/otus-go/hw12_13_14_15_calendar/internal/domain"
 	"github.com/gomonov/otus-go/hw12_13_14_15_calendar/internal/logger"
 )
@@ -16,7 +15,7 @@ type Server struct {
 	server *http.Server
 	logger Logger
 	app    Application
-	config config.ServerConf
+	config ServerConf
 }
 
 type Logger interface {
@@ -34,7 +33,12 @@ type Application interface {
 	ListByMonth(date time.Time) ([]domain.Event, error)
 }
 
-func NewServer(logger *logger.Logger, app Application, config config.ServerConf) *Server {
+type ServerConf struct {
+	Host string
+	Port string
+}
+
+func NewServer(logger *logger.Logger, app Application, config ServerConf) *Server {
 	return &Server{
 		logger: logger,
 		app:    app,
@@ -43,10 +47,7 @@ func NewServer(logger *logger.Logger, app Application, config config.ServerConf)
 }
 
 func (s *Server) Start(ctx context.Context) error {
-	mux := http.NewServeMux()
-
-	mux.HandleFunc("/", s.helloHandler)
-	mux.HandleFunc("/hello", s.helloHandler)
+	mux := s.setupRoutes()
 
 	handler := loggingMiddleware(s.logger, mux)
 
@@ -81,15 +82,4 @@ func (s *Server) Stop(ctx context.Context) error {
 
 	s.logger.Info("HTTP server stopped")
 	return nil
-}
-
-func (s *Server) helloHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" && r.URL.Path != "/hello" {
-		http.NotFound(w, r)
-		return
-	}
-
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Hello, World!"))
 }
