@@ -2,6 +2,7 @@ package internalhttp
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -13,30 +14,30 @@ import (
 
 type CreateEventRequest struct {
 	Title        string        `json:"title"`
-	EventTime    time.Time     `json:"event_time"`
+	EventTime    time.Time     `json:"eventTime"`
 	Duration     time.Duration `json:"duration"`
 	Description  string        `json:"description"`
-	UserID       int           `json:"user_id"`
-	TimeToNotify time.Time     `json:"time_to_notify"`
+	UserID       int           `json:"userId"`
+	TimeToNotify time.Time     `json:"timeToNotify"`
 }
 
 type UpdateEventRequest struct {
 	Title        string        `json:"title"`
-	EventTime    time.Time     `json:"event_time"`
+	EventTime    time.Time     `json:"eventTime"`
 	Duration     time.Duration `json:"duration"`
 	Description  string        `json:"description"`
-	UserID       int           `json:"user_id"`
-	TimeToNotify time.Time     `json:"time_to_notify"`
+	UserID       int           `json:"userId"`
+	TimeToNotify time.Time     `json:"timeToNotify"`
 }
 
 type EventResponse struct {
 	ID           int           `json:"id"`
 	Title        string        `json:"title"`
-	EventTime    time.Time     `json:"event_time"`
+	EventTime    time.Time     `json:"eventTime"`
 	Duration     time.Duration `json:"duration"`
 	Description  string        `json:"description"`
-	UserID       int           `json:"user_id"`
-	TimeToNotify time.Time     `json:"time_to_notify"`
+	UserID       int           `json:"userId"`
+	TimeToNotify time.Time     `json:"timeToNotify"`
 }
 
 type EventsListResponse struct {
@@ -183,7 +184,7 @@ func (s *Server) getEventHandler(w http.ResponseWriter, r *http.Request) {
 
 	event, err := s.app.GetEvent(id)
 	if err != nil {
-		if err == domain.ErrEventNotFound {
+		if errors.Is(err, domain.ErrEventNotFound) {
 			s.sendError(w, "Event not found", http.StatusNotFound)
 		} else {
 			s.sendError(w, fmt.Sprintf("Failed to get event: %v", err), http.StatusInternalServerError)
@@ -227,7 +228,7 @@ func (s *Server) updateEventHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.app.UpdateEvent(id, event); err != nil {
-		if err == domain.ErrEventNotFound {
+		if errors.Is(err, domain.ErrEventNotFound) {
 			s.sendError(w, "Event not found", http.StatusNotFound)
 		} else {
 			s.sendError(w, fmt.Sprintf("Failed to update event: %v", err), http.StatusInternalServerError)
@@ -246,7 +247,7 @@ func (s *Server) deleteEventHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.app.DeleteEvent(id); err != nil {
-		if err == domain.ErrEventNotFound {
+		if errors.Is(err, domain.ErrEventNotFound) {
 			s.sendError(w, "Event not found", http.StatusNotFound)
 		} else {
 			s.sendError(w, fmt.Sprintf("Failed to delete event: %v", err), http.StatusInternalServerError)

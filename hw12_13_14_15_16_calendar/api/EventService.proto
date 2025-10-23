@@ -8,12 +8,12 @@ package event;
 option go_package = "./;internalgrpc";
 
 message Event {
-  int32 id = 1;
+  int64 id = 1;
   string title = 2;
   google.protobuf.Timestamp event_time = 3;
   google.protobuf.Duration duration = 4;
   string description = 5;
-  int32 user_id = 6;
+  int64 user_id = 6;
   google.protobuf.Timestamp time_to_notify = 7;
 }
 
@@ -26,7 +26,7 @@ message CreateEventResponse {
 }
 
 message UpdateEventRequest {
-  int32 id = 1;
+  int64 id = 1;
   Event event = 2;
 }
 
@@ -35,7 +35,7 @@ message UpdateEventResponse {
 }
 
 message DeleteEventRequest {
-  int32 id = 1;
+  int64 id = 1;
 }
 
 message DeleteEventResponse {
@@ -43,7 +43,7 @@ message DeleteEventResponse {
 }
 
 message GetEventRequest {
-  int32 id = 1;
+  int64 id = 1;
 }
 
 message GetEventResponse {

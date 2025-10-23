@@ -127,12 +127,12 @@ func (s *Server) ListByMonth(_ context.Context, req *ListByMonthRequest) (*ListE
 
 func (s *Server) domainEventToProto(event *domain.Event) *Event {
 	return &Event{
-		Id:           int32(event.ID),
+		Id:           int64(event.ID),
 		Title:        event.Title,
 		EventTime:    timestamppb.New(event.EventTime),
 		Duration:     durationpb.New(event.Duration),
 		Description:  event.Description,
-		UserId:       int32(event.UserID),
+		UserId:       int64(event.UserID),
 		TimeToNotify: timestamppb.New(event.TimeToNotify),
 	}
 }
