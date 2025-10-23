@@ -21,6 +21,7 @@ type Logger interface {
 
 type Storage interface {
 	Event() storage.EventRepository
+	Close() error
 }
 
 type EventRepository interface {

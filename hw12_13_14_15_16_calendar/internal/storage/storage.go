@@ -8,6 +8,7 @@ import (
 
 type Storage interface {
 	Event() EventRepository
+	Close() error
 }
 
 type EventRepository interface {

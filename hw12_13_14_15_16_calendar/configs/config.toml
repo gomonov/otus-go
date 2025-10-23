@@ -6,6 +6,10 @@ FileName = "logs/app.log"
 Host = "127.0.0.1"
 Port = "8080"
 
+[GRPC]
+Host = "127.0.0.1"
+Port = "50051"
+
 [Storage]
 Dsn = "postgres://user:password@localhost:5432/calendar?sslmode=disable"
 StorageType = "postgres"
