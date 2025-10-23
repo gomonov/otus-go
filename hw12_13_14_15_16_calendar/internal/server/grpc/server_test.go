@@ -62,8 +62,8 @@ func createTestGRPCLogger() *logger.Logger {
 
 func TestGRPCCreateEvent(t *testing.T) {
 	app := &MockApp{}
-	logger := createTestGRPCLogger()
-	server := NewServer(logger, app, GRPCConf{})
+	testLogger := createTestGRPCLogger()
+	server := NewServer(testLogger, app, GRPCConf{})
 
 	event := &Event{
 		Title:        "Test",
@@ -86,8 +86,8 @@ func TestGRPCCreateEvent(t *testing.T) {
 
 func TestGRPCGetEvent(t *testing.T) {
 	app := &MockApp{}
-	logger := createTestGRPCLogger()
-	server := NewServer(logger, app, GRPCConf{})
+	testLogger := createTestGRPCLogger()
+	server := NewServer(testLogger, app, GRPCConf{})
 
 	testEvent := domain.Event{
 		ID:           1,
@@ -110,8 +110,8 @@ func TestGRPCGetEvent(t *testing.T) {
 
 func TestGRPCUpdateEvent(t *testing.T) {
 	app := &MockApp{}
-	logger := createTestGRPCLogger()
-	server := NewServer(logger, app, GRPCConf{})
+	testLogger := createTestGRPCLogger()
+	server := NewServer(testLogger, app, GRPCConf{})
 
 	event := &Event{
 		Title: "Updated",
@@ -131,8 +131,8 @@ func TestGRPCUpdateEvent(t *testing.T) {
 
 func TestGRPCDeleteEvent(t *testing.T) {
 	app := &MockApp{}
-	logger := createTestGRPCLogger()
-	server := NewServer(logger, app, GRPCConf{})
+	testLogger := createTestGRPCLogger()
+	server := NewServer(testLogger, app, GRPCConf{})
 
 	app.On("DeleteEvent", 1).Return(nil)
 
@@ -145,8 +145,8 @@ func TestGRPCDeleteEvent(t *testing.T) {
 
 func TestGRPCListByDay(t *testing.T) {
 	app := &MockApp{}
-	logger := createTestGRPCLogger()
-	server := NewServer(logger, app, GRPCConf{})
+	testLogger := createTestGRPCLogger()
+	server := NewServer(testLogger, app, GRPCConf{})
 
 	testEvents := []domain.Event{
 		{
@@ -172,8 +172,8 @@ func TestGRPCListByDay(t *testing.T) {
 
 func TestGRPCErrorHandling(t *testing.T) {
 	app := &MockApp{}
-	logger := createTestGRPCLogger()
-	server := NewServer(logger, app, GRPCConf{})
+	testLogger := createTestGRPCLogger()
+	server := NewServer(testLogger, app, GRPCConf{})
 
 	app.On("GetEvent", 999).Return(domain.Event{}, domain.ErrEventNotFound)
 
