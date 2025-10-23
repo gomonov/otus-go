@@ -62,4 +62,38 @@ func TestTelnetClient(t *testing.T) {
 
 		wg.Wait()
 	})
+
+	t.Run("connect timeout", func(t *testing.T) {
+		client := NewTelnetClient("10.255.255.1:12345", 1*time.Second, io.NopCloser(bytes.NewBuffer(nil)), io.Discard)
+		err := client.Connect()
+		require.Error(t, err)
+	})
+
+	t.Run("send EOF", func(t *testing.T) {
+		l, err := net.Listen("tcp", "127.0.0.1:")
+		require.NoError(t, err)
+		defer l.Close()
+
+		var wg sync.WaitGroup
+		wg.Add(2)
+
+		go func() {
+			defer wg.Done()
+			client := NewTelnetClient(l.Addr().String(), 2*time.Second, io.NopCloser(bytes.NewBuffer(nil)), io.Discard)
+			require.NoError(t, client.Connect())
+			defer client.Close()
+
+			// Отправка с пустым буфером должна завершиться без ошибок
+			require.NoError(t, client.Send())
+		}()
+
+		go func() {
+			defer wg.Done()
+			conn, err := l.Accept()
+			require.NoError(t, err)
+			defer conn.Close()
+		}()
+
+		wg.Wait()
+	})
 }
